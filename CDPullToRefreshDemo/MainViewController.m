@@ -53,9 +53,19 @@ const NSInteger pull2RefreshFooterHeight = 50;
 }
 
 #pragma mark - UITableViewDataSource
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     return dataSource ? dataSource.count : 0;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (section < dataSource.count)
+    {
+        return [[dataSource objectAtIndex:section] count];
+    }
+    
+    return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -101,7 +111,7 @@ const NSInteger pull2RefreshFooterHeight = 50;
     }
     
     NSArray *moreDataArr = [NSArray arrayWithObjects:@"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", nil];
-    [dataSource addObjectsFromArray:moreDataArr];
+    [dataSource addObject:moreDataArr];
     
     [pull2RefreshTableView reloadData];
     [pull2RefreshTableView completeDragRefresh];
@@ -117,14 +127,14 @@ const NSInteger pull2RefreshFooterHeight = 50;
 
 - (void)reloadInitData
 {
-    sleep(2);
+    sleep(20);
     if (dataSource.count > 0)
     {
         [dataSource removeAllObjects];
     }
     
     NSArray *initDataArr = [NSArray arrayWithObjects:@"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", @"Row", nil];
-    [dataSource addObjectsFromArray:initDataArr];
+    [dataSource addObject:initDataArr];
     
     [pull2RefreshTableView reloadData];
     [pull2RefreshTableView completeDragRefresh];

@@ -99,9 +99,75 @@
     }
 }
 
+#pragma mark - UITableViewDelegate
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 0)];
+    headerView.backgroundColor = [UIColor lightGrayColor];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(15, 0, 320, 0)];
+    label.backgroundColor = [UIColor clearColor];
+    label.text = [NSString stringWithFormat:@"header:%d", section];
+    label.textColor = [UIColor blackColor];
+    [headerView addSubview:label];
+    
+    return headerView;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 23.0f;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    //按frame.origin.y打印出所有子view
+    NSMutableArray *subViews = [tableView.subviews mutableCopy];
+    [subViews sortWithOptions:NSSortStable usingComparator:^NSComparisonResult(UIView *subView1, UIView *subView2)
+    {
+        if (subView1.frame.origin.y > subView2.frame.origin.y)
+        {
+            return NSOrderedDescending;
+        }
+        else if (subView1.frame.origin.y < subView2.frame.origin.y)
+        {
+            return NSOrderedAscending;
+        }
+        else
+        {
+            return NSOrderedSame;
+        }
+    }];
+    
+    for (UIView *subView in subViews)
+    {
+        if (![subView isKindOfClass:[UIImageView class]])
+        {
+            NSLog(@"%@", subView);
+        }
+    }
+}
+
 #pragma mark - UIScrollViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    //added 2013.11.28 动态修改headerView的位置
+    if (headerRefreshing)
+    {
+        if (scrollView.contentOffset.y >= -scrollView.contentInset.top
+            && scrollView.contentOffset.y < 0)
+        {
+            //注意:修改scrollView.contentInset时，若使当前界面显示位置发生变化，会触发scrollViewDidScroll:，从而导致死循环。
+            //因此此处scrollView.contentInset.top必须为-scrollView.contentOffset.y
+            scrollView.contentInset = UIEdgeInsetsMake(-scrollView.contentOffset.y, 0, 0, 0);
+        }
+        else if (scrollView.contentOffset.y == 0)//到0说明headerView已经在tableView最上方，不需要再修改了
+        {
+            scrollView.contentInset = UIEdgeInsetsZero;
+        }
+    }
+    
+    //other code here...
+    
     //拉动足够距离，状态变更为“松开....”
     if (self.shouldShowDragHeader && dragHeaderView)
     {
